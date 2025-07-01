@@ -34,12 +34,16 @@
 	</style>
 </head>
 
-<body class="bg-gradient-to-br from-blue-100 to-indigo-200 min-h-screen py-10">
-	<div class="flex flex-col lg:flex-row items-start justify-center gap-8 w-full mx-auto">
-		<div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 ml-8 flex-shrink-0">
-			<h2 class="text-2xl font-bold text-center text-indigo-700 mb-6 uppercase">Đăng ký danh sách cầu thủ
-				<br><span class="text-indigo-600 font-bold text-red-500">CT3 FC</span></h2>
-			<form class="space-y-5" onsubmit="event.preventDefault(); submitData();">
+<body class="bg-gradient-to-br from-blue-100 to-indigo-200 min-h-screen py-4">
+    <div class="container mx-auto px-2 sm:px-4 md:px-8 flex flex-col gap-8">
+        <!-- Banner section -->
+        <div id="banner-html" class="w-full flex justify-center mb-4 mt-2 order-1"></div>
+        <!-- Main content: Form + Player List -->
+        <div class="flex flex-col lg:flex-row gap-6 w-full order-2">
+            <!-- Form -->
+            <div class="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mx-auto lg:mx-0 flex-shrink-0">
+                <h2 class="text-xl sm:text-2xl font-bold text-center text-indigo-700 mb-4 sm:mb-6 uppercase">Đăng ký danh sách cầu thủ<br><span class="text-indigo-600 font-bold text-red-500">CT3 FC</span></h2>
+                <form class="space-y-4 sm:space-y-5" onsubmit="event.preventDefault(); submitData();">
 				<div>
 					<label for="name" class="block text-sm font-medium text-gray-700 mb-1">Họ và tên</label>
 					<input id="name" name="name" type="text"
@@ -105,15 +109,14 @@
 						ký</button>
 				</div>
 			</form>
-			<div id="preview" class="mt-8"></div>
-		</div>
-		<div id="player-list" class="w-full mt-0 mr-8"></div>
-	</div>
+			<div id="preview" class="mt-6 sm:mt-8"></div>
+        </div>
+            <!-- Player List -->
+            <div id="player-list" class="w-full mt-4 lg:mt-0"></div>
+        </div>
+    </div>
 
-	<button id="export-banner-btn" class="px-4 py-2 bg-green-600 text-white rounded font-bold mb-4 hover:bg-green-700 transition">Export Banner ra ảnh</button>
-	<div id="banner-html" class="w-full flex justify-center mb-8 mt-8"></div>
-
-	<script>
+    <script>
 		const API_URL = "https://script.google.com/macros/s/AKfycbwFfWp0d-EJMIyp7aTHJ7JdBcxZo62XrXyhq3pNF42gakfI0zZCKNqGRbwb8mgG3maY/exec";
 
 		renderPlayerList();
@@ -257,6 +260,7 @@
 		function renderBannerHTML(players = []) {
 			// Phân loại vai trò
 			const roles = {
+				'Ban huấn luyện': [],
 				'Chủ tịch': [],
 				'Huấn luyện viên': [],
 				'Trợ lý HLV': [],
@@ -265,43 +269,80 @@
 			};
 			players.forEach(p => {
 				const role = (p.role || '').toLowerCase();
-				if (role.includes('chủ tịch')) roles['Chủ tịch'].push(p);
+				if (role.includes('ban huấn luyện') || role === 'na' || role === 'nb' || role === 'nc') roles['Ban huấn luyện'].push(p);
+				else if (role.includes('chủ tịch')) roles['Chủ tịch'].push(p);
 				else if (role.includes('huấn luyện') || role.includes('hlv')) roles['Huấn luyện viên'].push(p);
 				else if (role.includes('trợ lý')) roles['Trợ lý HLV'].push(p);
 				else if (role.includes('cầu thủ')) roles['Cầu thủ'].push(p);
 				else roles['Khác'].push(p);
 			});
 
-			const renderPerson = (p, sub = '') => `
-				<div class="flex flex-col items-center mx-2 my-1">
-					<div class="w-20 h-20 rounded-full border-2 border-indigo-400 shadow bg-white flex items-center justify-center overflow-hidden">
-						<img src="${p.image ? p.image : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(p.name || 'Player') + '&background=random'}" alt="${p.name || ''}" class="w-full h-full object-cover">
-					</div>
+			// Font đồng bộ
+			const fontTitle = 'font-bebas';
+			const fontBody = 'font-sans';
 
-					<div class="text-xs font-bold text-white mt-1 text-center bg-orange-600 rounded-sm w-32">${p.name || ''}</div>
-					${sub ? `<div class="text-[12px] font-bold text-px] text-gray-500 text-center">${sub}</div>` : ''}
+			// Ảnh đại diện nhỏ lại, số áo nổi bật
+			const renderPerson = (p, sub = '', showJersey = false, size = 100) => `
+				<div class="flex flex-col items-center mx-1 my-1">
+					<div class="relative w-[${size}px] h-[${size}px] rounded-full border-2 border-white shadow bg-white flex items-center justify-center overflow-hidden">
+						<img src="${p.image ? p.image : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(p.name || 'Player') + '&background=random'}" alt="${p.name || ''}" class="w-full h-full object-cover rounded-full">
+						${showJersey && p.shirtNumber ? `<div class='absolute bottom-1 right-1 w-7 h-7 flex items-center justify-center bg-red-600 border-2 border-white rounded-full text-white text-base font-extrabold shadow' style='font-family:Bebas Neue,Arial,sans-serif;'>${p.shirtNumber}</div>` : ''}
+					</div>
+					<div class="text-xs font-bold text-gray-900 mt-1 text-center ${fontBody}">${p.name || ''}</div>
+					${sub ? `<div class="text-xs font-semibold text-gray-600 text-center mt-0.5 ${fontBody}">${sub}</div>` : ''}
 				</div>
 			`;
 
-			const renderRow = (arr, sub = '') =>
-				`<div class="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-2">${arr.map(p => renderPerson(p, sub)).join('')}</div>`;
+			// Ban huấn luyện riêng, nhỏ lại
+			const renderCoachRow = arr =>
+				arr.length ? `<div class='flex flex-wrap justify-center gap-x-4 gap-y-1 mb-3 bg-white/80 rounded-xl py-2 shadow'><div class='w-full text-center text-base font-bold text-red-700 mb-1 ${fontBody}'>BAN HUẤN LUYỆN</div>${arr.map(p => renderPerson(p, p.role, false, 80)).join('')}</div>` : '';
+
+			// Cầu thủ nhỏ lại
+			const renderPlayerRows = arr => {
+				if (!arr.length) return '';
+				let html = '';
+				for (let i = 0; i < arr.length; i += 6) {
+					html += `<div class='flex flex-wrap justify-center gap-x-4 gap-y-2 mb-1'>${arr.slice(i, i+6).map(p => renderPerson(p, '', true, 90)).join('')}</div>`;
+				}
+				return html;
+			};
+
+			// Nhà tài trợ
+			const sponsors = `
+				<div class='w-full flex flex-col items-center mt-6'>
+					<div class='text-base font-semibold text-gray-700 mb-2 ${fontBody}'>Nhà tài trợ</div>
+					<div class='flex flex-row flex-wrap justify-center gap-8 bg-white/80 rounded-xl py-3 px-6 shadow'>
+						<img src="images/homemart.jpg" class="h-14 rounded shadow border-2 border-gray-200 bg-white" alt="Homemart 88">
+						<img src="images/logo-ori.png" class="h-14 rounded shadow border-2 border-gray-200 bg-white" alt="TV">
+						<img src="images/230x0w.webp" class="h-14 rounded shadow border-2 border-gray-200 bg-white" alt="V-Sports">
+						<img src="images/zocker.jpg" class="h-14 rounded shadow border-2 border-gray-200 bg-white" alt="Zocker">
+					</div>
+				</div>
+			`;
 
 			const banner = document.getElementById('banner-html');
 			banner.innerHTML = `
 				<div class="relative w-full max-w-5xl mx-auto rounded-xl overflow-hidden shadow-lg bg-gradient-to-r from-yellow-100 via-white to-purple-100 border-2 border-yellow-400 p-2">
-					<div class="flex flex-col items-center py-4">
+					<!-- Họa tiết góc trên trái -->
+					<svg class="absolute left-0 top-0 z-10" width="180" height="120" viewBox="0 0 180 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<polygon points="0,0 180,0 60,120 0,120" fill="#a78bfa"/>
+						<polygon points="0,0 120,0 60,120" fill="#fde68a"/>
+					</svg>
+					<!-- Họa tiết góc dưới phải -->
+					<svg class="absolute right-0 bottom-0 z-10" width="180" height="120" viewBox="0 0 180 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<polygon points="180,120 0,120 120,0 180,0" fill="#a78bfa"/>
+						<polygon points="180,120 60,120 120,0" fill="#fde68a"/>
+					</svg>
+					<div class="flex flex-col items-center py-4 relative z-20">
 						<div class="flex items-center gap-4 mb-2">
 							<img src="images/logo-ori.png" alt="logo" class="w-20">
 							<div class="flex flex-col items-center">
 								<div class="flex flex-col items-center">
 									<img src="images/trophy.png" alt="icon" class="w-8 h-8 mb-1">
-									<div class="text-lg md:text-md font-medium text-purple-900 uppercase tracking-wide">Giải bóng đá sân
-										7</div>
+									<div class="text-lg md:text-md font-medium text-purple-900 uppercase tracking-wide">Giải bóng đá sân 7</div>
 								</div>
-								<div class="text-base md:text-3xl font-bold text-red-700 uppercase font-bebas">ORI GARDEN SUPER CUP
-								</div>
-								<div class="text-xs md:text-lg font-semibold text-gray-700 uppercase">Tranh cúp "<span
-										class="font-bold text-orange-700">NHÀ TÀI TRỢ</span>" - Lần 1 năm 2025</div>
+								<div class="text-base md:text-3xl font-bold text-red-700 uppercase font-bebas">ORI GARDEN SUPER CUP</div>
+								<div class="text-xs md:text-lg font-semibold text-gray-700 uppercase">Tranh cúp "<span class="font-bold text-orange-700">NHÀ TÀI TRỢ</span>" - Lần 1 năm 2025</div>
 							</div>
 							<img src="images/230x0w.webp" alt="logo2" class="w-16 h-16 rounded-full border-2 border-yellow-400 shadow">
 						</div>
@@ -316,13 +357,10 @@
 								<span class="relative flex items-center font-bold px-0 py-1">
 									<svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 										<polyline points="28,2 2,10 28,20 2,30 28,38" fill="none" stroke="#facc15" stroke-width="4" />
-										<polyline points="28,4 8,12 28,20 8,28 28,36" fill="#facc15" stroke="#facc15"
-											stroke-width="1" />
+										<polyline points="28,4 8,12 28,20 8,28 28,36" fill="#facc15" stroke="#facc15" stroke-width="1" />
 									</svg>
 									<span class="bg-yellow-400 text-gray-800 font-bold px-4 py-1 flex items-center">
-										<span class="text-2xl text-red-700 font-bold tracking-widest"
-											style="letter-spacing:0.1em;">ORI-CT3
-											FC</span>
+										<span class="text-2xl text-red-700 font-bold tracking-widest" style="letter-spacing:0.1em;">ORI-CT3 FC</span>
 									</span>
 									<svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 										<polyline points="0,2 26,10 0,20 26,30 0,38" fill="none" stroke="#facc15" stroke-width="4" />
@@ -331,49 +369,13 @@
 								</span>
 							</div>
 						</div>
-						<div class="flex flex-wrap justify-center gap-8 mb-2">
-							${roles['Chủ tịch'].map(p => renderPerson(p, 'Chủ tịch CLB')).join('')}
-							${roles['Huấn luyện viên'].map(p => renderPerson(p, 'Huấn luyện viên')).join('')}
-							${roles['Trợ lý HLV'].map(p => renderPerson(p, 'Trợ lý HLV')).join('')}
-						</div>
-						<div class="border-t border-dashed border-gray-400 w-full my-2"></div>
-						<div class="w-full flex flex-wrap justify-center gap-x-6 gap-y-2">
-							${(() => {
-								const players = roles['Cầu thủ'];
-								const row1 = players.slice(0, 5).map(p => renderPerson(p, p.shirtNumber)).join('');
-								const row2 = players.slice(5, 9).map(p => renderPerson(p, p.shirtNumber)).join('');
-								const row3 = players.slice(9, 14).map(p => renderPerson(p, p.shirtNumber)).join('');
-								return `
-									<div class="w-full flex flex-wrap justify-center gap-x-6 gap-y-2 mb-2">${row1}</div>
-									<div class="w-full flex flex-wrap justify-center gap-x-6 gap-y-2 mb-2">${row2}</div>
-									<div class="w-full flex flex-wrap justify-center gap-x-6 gap-y-2 mb-2">${row3}</div>
-								`;
-						})()}
-						</div>
-						<div class="border-t border-dashed border-gray-400 w-full my-2"></div>
-						<div class="flex flex-wrap justify-center items-center gap-6 mt-2">
-							<div class="flex flex-col items-center">
-								<span class="text-xs text-gray-500 font-semibold">Đơn vị tài trợ đồng</span>
-								<img src="images/homemart.jpg" class="h-12 mt-1"
-									alt="Homemart 88">
-							</div>
-							<div class="flex flex-col items-center">
-								<span class="text-xs text-gray-500 font-semibold">Đơn vị tổ chức - truyền thông</span>
-								<div class="flex gap-1 mt-1">
-									<img src="images/logo-ori.png" class="h-12" alt="TV">
-									<img src="images/230x0w.webp" class="h-12"
-										alt="V-Sports">
-								</div>
-							</div>
-							<div class="flex flex-col items-center">
-								<span class="text-xs text-gray-500 font-semibold">Đơn vị bóng thi đấu</span>
-								<img src="images/zocker.jpg" class="h-12 mt-1"
-									alt="Zocker">
-							</div>
-						</div>
+						${renderCoachRow(roles['Ban huấn luyện'].concat(roles['Chủ tịch'], roles['Huấn luyện viên'], roles['Trợ lý HLV']))}
+						<div class="w-full text-center text-xl font-bold text-white mt-4 mb-2 ${fontTitle} tracking-widest">DANH SÁCH ĐỘI BÓNG</div>
+						${renderPlayerRows(roles['Cầu thủ'])}
+						${sponsors}
 					</div>
 				</div>
-  			`;
+			`;
 		}
 
 		document.addEventListener('DOMContentLoaded', function () {
