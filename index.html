@@ -103,7 +103,7 @@
 	<div id="banner-html" class="w-full flex justify-center mb-8 mt-8"></div>
 
 	<script>
-		const API_URL = "https://script.google.com/macros/s/AKfycbweuedkGJaa0n75I3JOI9XaBp6qYBriMa35sRBSXxbjhAacoM9k5lg2e_d0X41lvDDf/exec";
+		const API_URL = "https://script.google.com/macros/s/AKfycbwEjNgTNnmazk-KpTMXG-aOWVRnkL__a8CPE7IggvreDK4d-2fzPql8xGpGqluH4vYt/exec";
 
 		renderPlayerList();
 		let imageBase64 = '';
@@ -161,8 +161,7 @@
 
 			fetch(API_URL, {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(player)
+				body: new URLSearchParams(player)
 			})
 			.then(res => {
 				if (!res.ok) throw new Error('Lỗi khi gửi dữ liệu lên Google Sheet!');
