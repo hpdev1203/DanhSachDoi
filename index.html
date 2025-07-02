@@ -325,14 +325,14 @@
 							<div class="text-xs text-gray-500">Siêu thị mini CT3</div>
 						</div>
 						<div class="flex flex-col items-center text-center">
-							<img src="images/logo-ori.png" class="h-16 rounded shadow border-2 border-gray-200 bg-white mb-2" alt="TV">
-							<div class="text-sm font-bold text-gray-800">Ori Garden</div>
-							<div class="text-xs text-gray-500">Khu đô thị xanh hiện đại Đà Nẵng</div>
+							<img src="images/nac.jpg" class="h-16 rounded shadow border-2 border-gray-200 bg-white mb-2" alt="TV">
+							<div class="text-sm font-bold text-gray-800">NAC Home</div>
+							<div class="text-xs text-gray-500">New A Concept - Thiết kế nội thất</div>
 						</div>
 						<div class="flex flex-col items-center text-center">
-							<img src="images/230x0w.webp" class="h-16 rounded shadow border-2 border-gray-200 bg-white mb-2" alt="V-Sports">
-							<div class="text-sm font-bold text-gray-800">Resimax</div>
-							<div class="text-xs text-gray-500">Ứng dụng Resimax là sản phẩm do BPmax phát triển</div>
+							<img src="images/luklak.jpg" class="h-16 rounded shadow border-2 border-gray-200 bg-white mb-2 text-gray-500" alt="LukLak">
+							<div class="text-sm font-bold text-gray-800">LukLak Architects</div>
+							<div class="text-xs text-gray-500">Dịch vụ Thiết kế và Thi công trọn gói tại Đà Nẵng</div>
 						</div>
 						<div class="flex flex-col items-center text-center">
 							<img src="images/phuchung.jpg" class="h-16 rounded shadow border-2 border-gray-200 bg-white mb-2" alt="Phúc Hưng - Đơn vị sửa chữa chống thấm tại Đà Nẵng">
@@ -439,18 +439,7 @@
 			exportBannerBtn.addEventListener('click', function () {
 				const banner = document.getElementById('banner-html');
 				// Kích thước lớn cho in ấn, ví dụ: 3508x2480px (A3 landscape)
-				const exportWidth = 3508;
-				const exportHeight = 2480;
-				domtoimage.toPng(banner, {
-					width: exportWidth,
-					height: exportHeight,
-					style: {
-						transform: 'scale(1)',
-						transformOrigin: 'top left',
-						width: exportWidth + 'px',
-						height: exportHeight + 'px'
-					}
-				})
+				domtoimage.toPng(banner)
 				.then(function (dataUrl) {
 					const link = document.createElement('a');
 					link.download = 'banner.png';
